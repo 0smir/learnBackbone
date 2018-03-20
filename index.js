@@ -16,6 +16,15 @@ var Advertisement = Backbone.Model.extend({
         this.on('change:year', function () {
             alert('New year was set!' + this.get('year'));
         });
+        this.on('invalid', function (model, error) {
+            alert(error);
+        });
+    },
+
+    validate: function(attrs) {
+        if (attrs.price < 0) {
+            return 'Цена не может быть отрицательной';
+        }
     },
 
     getPriceInRUB: function(rate) {
@@ -48,7 +57,10 @@ var  attrAD = ad.toJSON();
 
 console.log('attrAD: ', attrAD);
 
-ad.set('price', 120000);
+ad.set('price', -120000, {validate: true});
 console.log('ad price update: ', ad.get('price'));
 ad.set('year', 2017);
 console.log('ad year update again: ', ad.get('year'));
+
+var RUBJPY = 0.32;
+console.log('price in RUB: ', ad.getPriceInRUB(RUBJPY));
