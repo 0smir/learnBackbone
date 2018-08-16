@@ -57,6 +57,10 @@ var ad = new Advertisement({
 
 // ad.set('price', -120000, {validate: true});
 
+var carCollection = Backbone.Collection.extend({
+    model: Advertisement
+});
+
 
 var Element = Backbone.View.extend({
 
@@ -88,7 +92,32 @@ var carItem = new Element({
 
     }
 });
-console.log('carItem', carItem);
+// console.log('carItem', carItem);
+
+
+
+var adList = new carCollection([
+    {
+        make: 'Toyota',
+        model: 'Camry',
+        year: 2017,
+        price: 8000000
+    },
+    {
+        make: 'Mercedes',
+        model: 'Smart',
+        year: 2015,
+        price: 19000000
+    },
+    {
+        model: 'Lexus',
+        year: 2015,
+        price: 45000000
+    }
+]);
+
+
+
 
 
 // var  attrAD = ad.toJSON();
