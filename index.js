@@ -1,3 +1,7 @@
+var template = function (id) {
+    return _.template($('#' + id).html());
+};
+
 
 //модель рекламного объявления
 var Advertisement = Backbone.Model.extend({
@@ -61,7 +65,7 @@ var ElementView = Backbone.View.extend({
 
     className: 'list-item',
 
-    template: _.template($('#ad_template').html()),
+    template: template('ad_template'),
 
     initialize: function () {
         // this.listenTo(this.model, 'run', this.render);
