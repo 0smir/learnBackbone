@@ -1,3 +1,5 @@
+
+//модель рекламного объявления
 var Advertisement = Backbone.Model.extend({
     defaults: {
         make: 'Toyota',
@@ -43,33 +45,24 @@ var Advertisement = Backbone.Model.extend({
 
 
 
-
-var ad = new Advertisement({
-
-    make: 'Mazda',
-    model: 'Atenza',
-    year: 2007,
-    price: 1700000,
-    odometer:70000,
+//экземпляр объявления
+var ad = new Advertisement();
 
 
-});
 
-// ad.set('price', -120000, {validate: true});
-
-var carCollection = Backbone.Collection.extend({
+//коллекция объявлений
+var CarCollection = Backbone.Collection.extend({
     model: Advertisement
 });
 
-
-var Element = Backbone.View.extend({
-
-    parent: 'ol',
-
+//вид одного объявдения
+var ElementView = Backbone.View.extend({
     tagName: 'li',
+
     className: 'list-item',
+
     template: _.template($('#ad_template').html()),
-    
+
     initialize: function () {
         // this.listenTo(this.model, 'run', this.render);
         // this.model.trigger('run');
@@ -77,13 +70,36 @@ var Element = Backbone.View.extend({
     },
 
     render: function () {
-        console.log('render');
+        // console.log('render');
         this.$el.html( this.template(this.model.toJSON()));
+
+        return this;
     }
 
 });
 
-var carItem = new Element({
+//вид списка объявлений
+var CarListView = Backbone.View.extend({
+    tagName: 'ul',
+
+    initialize: function () {
+        // console.log('this.collection', this.collection);
+        // this.render();
+    },
+    render: function () {
+        this.collection.each(function (modelItem) {
+            var item = new ElementView({ model: modelItem});
+            // console.log('item', item);
+            this.$el.append(item.render().el);
+        }, this);
+
+        return this;
+    }
+});
+
+
+//экземпляр одного объявления
+var carItem = new ElementView({
     model: ad,
     initialize: function () {
         console.log('model:', this.model);
@@ -95,8 +111,8 @@ var carItem = new Element({
 // console.log('carItem', carItem);
 
 
-
-var adList = new carCollection([
+//экземпляр коллекции
+var adList = new CarCollection([
     {
         make: 'Toyota',
         model: 'Camry',
@@ -117,41 +133,10 @@ var adList = new carCollection([
 ]);
 
 
+//экземпляр вида списка объявлений
+var carListView = new CarListView({
+    collection: adList
+});
 
 
-
-// var  attrAD = ad.toJSON();
-//
-// console.log('attrAD: ', attrAD);
-// //
-// // ad.set('price', -120000, {validate: true});
-// // console.log('ad price update: ', ad.get('price'));
-// // ad.set('year', 2017);
-// // console.log('ad year update again: ', ad.get('year'));
-//
-// var RUBJPY = 0.32;
-// console.log('price in RUB: ', ad.getPriceInRUB(RUBJPY));
-//
-//
-//
-// var AdvertisementViev = Backbone.View.extend({
-//     tagName: 'li',
-//
-//     template: _.template("Продам <%= make %> <%= model %> за <%= price %> иен"),
-//
-//     initialize: function () {
-//       this.render();
-//     },
-//
-//     render: function () {
-//         this.$el.html(this.template(this.model.toJSON()));
-//         return this;
-//     }
-// });
-//
-// var advertismentView = new AdvertisementViev({ model: ad });
-// // advertismentView.render();
-// console.log('advertismentView: ', advertismentView.model.get('make'));
-//
-// console.log('advertismentView odometr', advertismentView.model.getPricePerKilometerTravelled());
-// console.log('attention: ', advertismentView.el);
+$(document.body).append(carListView.render().el);
