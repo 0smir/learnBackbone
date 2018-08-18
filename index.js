@@ -1,146 +1,152 @@
-var template = function (id) {
-    return _.template($('#' + id).html());
-};
+(function () {
+
+    window.App = {
+        Models: {},
+        Views: {},
+        Collections: {}
+    };
+
+    window.template = function (id) {
+        return _.template($('#' + id).html());
+    };
 
 
-//модель рекламного объявления
-var Advertisement = Backbone.Model.extend({
-    defaults: {
-        make: 'Toyota',
-        model: 'Corolla',
-        year: 2010,
-        price: 2000000
-    },
+    //модель рекламного объявления
+    App.Models.Advertisement = Backbone.Model.extend({
+        defaults: {
+            make: 'Toyota',
+            model: 'Corolla',
+            year: 2010,
+            price: 2000000
+        },
 
 
-    initialize: function () {
-        // console.log('Create a new copy of Advertisement model!');
+        initialize: function () {
+            // console.log('Create a new copy of Advertisement model!');
 
-        this.on('change:price', function () {
-            console.log('New price was set!' + this.get('price'));
-        });
+            this.on('change:price', function () {
+                console.log('New price was set!' + this.get('price'));
+            });
 
-        this.on('change:year', function () {
-            console.log('New year was set!' + this.get('year'));
-        });
-        this.on('invalid', function (model, error) {
+            this.on('change:year', function () {
+                console.log('New year was set!' + this.get('year'));
+            });
+            this.on('invalid', function (model, error) {
+                console.log(error);
+            });
+        },
+
+        validate: function(attrs) {
+            if (attrs.price < 0) {
+                return 'Цена не может быть отрицательной';
+            }
+        },
+
+        getPriceInRUB: function(rate) {
+            return this.get('price') * rate;
+        },
+        getPricePerKilometerTravelled: function () {
+           return (this.get('price')/this.get('odometer')).toFixed(2);
+        },
+
+        setError: function (model, error) {
             console.log(error);
-        });
-    },
+        },
 
-    validate: function(attrs) {
-        if (attrs.price < 0) {
-            return 'Цена не может быть отрицательной';
+    });
+
+    //экземпляр объявления
+    var ad = new App.Models.Advertisement();
+
+
+
+    //коллекция объявлений
+    App.Collections.CarCollection = Backbone.Collection.extend({
+        model: App.Models.Advertisement
+    });
+
+    //вид одного объявдения
+    App.Views.Element = Backbone.View.extend({
+        tagName: 'li',
+
+        className: 'list-item',
+
+        template: template('ad_template'),
+
+        initialize: function () {
+            this.render();
+        },
+
+        render: function () {
+            console.log('this.model', this);
+            this.$el.html( this.template(this.model.toJSON()));
+
+            return this;
         }
-    },
 
-    getPriceInRUB: function(rate) {
-        return this.get('price') * rate;
-    },
-    getPricePerKilometerTravelled: function () {
-       return (this.get('price')/this.get('odometer')).toFixed(2);
-    },
+    });
 
-    setError: function (model, error) {
-        console.log(error);
-    },
+    //вид списка объявлений
+    App.Views.CarList = Backbone.View.extend({
+        tagName: 'ul',
 
-});
+        initialize: function () {
+            // console.log('this.collection', this.collection);
+            // this.render();
+        },
+        render: function () {
+            this.collection.each(function (modelItem) {
+                var item = new App.Views.Element({ model: modelItem});
+                // console.log('item', item);
+                this.$el.append(item.render().el);
+            }, this);
 
-
-
-//экземпляр объявления
-var ad = new Advertisement();
-
-
-
-//коллекция объявлений
-var CarCollection = Backbone.Collection.extend({
-    model: Advertisement
-});
-
-//вид одного объявдения
-var ElementView = Backbone.View.extend({
-    tagName: 'li',
-
-    className: 'list-item',
-
-    template: template('ad_template'),
-
-    initialize: function () {
-        // this.listenTo(this.model, 'run', this.render);
-        // this.model.trigger('run');
-        this.render();
-    },
-
-    render: function () {
-        // console.log('render');
-        this.$el.html( this.template(this.model.toJSON()));
-
-        return this;
-    }
-
-});
-
-//вид списка объявлений
-var CarListView = Backbone.View.extend({
-    tagName: 'ul',
-
-    initialize: function () {
-        // console.log('this.collection', this.collection);
-        // this.render();
-    },
-    render: function () {
-        this.collection.each(function (modelItem) {
-            var item = new ElementView({ model: modelItem});
-            // console.log('item', item);
-            this.$el.append(item.render().el);
-        }, this);
-
-        return this;
-    }
-});
+            return this;
+        }
+    });
 
 
-//экземпляр одного объявления
-var carItem = new ElementView({
-    model: ad,
-    initialize: function () {
-        console.log('model:', this.model);
-    },
-    render: function () {
+    //экземпляр одного объявления
+    var carItem = new App.Views.Element({
+        model: ad,
+        initialize: function () {
+            // console.log('model:', this.model);
+        },
+        render: function () {
 
-    }
-});
-// console.log('carItem', carItem);
-
-
-//экземпляр коллекции
-var adList = new CarCollection([
-    {
-        make: 'Toyota',
-        model: 'Camry',
-        year: 2017,
-        price: 8000000
-    },
-    {
-        make: 'Mercedes',
-        model: 'Smart',
-        year: 2015,
-        price: 19000000
-    },
-    {
-        model: 'Lexus',
-        year: 2015,
-        price: 45000000
-    }
-]);
+        }
+    });
+    // console.log('carItem', carItem);
 
 
-//экземпляр вида списка объявлений
-var carListView = new CarListView({
-    collection: adList
-});
+    //экземпляр коллекции
+    var adList = new App.Collections.CarCollection([
+        {
+            make: 'Toyota',
+            model: 'Camry',
+            year: 2017,
+            price: 8000000
+        },
+        {
+            make: 'Mercedes',
+            model: 'Smart',
+            year: 2015,
+            price: 19000000
+        },
+        {
+            model: 'Lexus',
+            year: 2015,
+            price: 45000000
+        }
+    ]);
 
 
-$(document.body).append(carListView.render().el);
+    //экземпляр вида списка объявлений
+    var carListView = new App.Views.Element({
+        collection: adList
+    });
+
+
+    $(document.body).append(carListView.render().el);
+
+})();
