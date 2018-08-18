@@ -66,7 +66,7 @@
     });
 
     //вид одного объявдения
-    App.Views.Element = Backbone.View.extend({
+    App.Views.adElement = Backbone.View.extend({
         tagName: 'li',
 
         className: 'list-item',
@@ -74,11 +74,13 @@
         template: template('ad_template'),
 
         initialize: function () {
+            // this.listenTo(this.model, 'run', this.render);
+            // this.model.trigger('run');
             this.render();
         },
 
         render: function () {
-            console.log('this.model', this);
+            // console.log('render');
             this.$el.html( this.template(this.model.toJSON()));
 
             return this;
@@ -96,27 +98,14 @@
         },
         render: function () {
             this.collection.each(function (modelItem) {
-                var item = new App.Views.Element({ model: modelItem});
-                // console.log('item', item);
+                var item = new App.Views.adElement({ model: modelItem});
+
                 this.$el.append(item.render().el);
             }, this);
 
             return this;
         }
     });
-
-
-    //экземпляр одного объявления
-    var carItem = new App.Views.Element({
-        model: ad,
-        initialize: function () {
-            // console.log('model:', this.model);
-        },
-        render: function () {
-
-        }
-    });
-    // console.log('carItem', carItem);
 
 
     //экземпляр коллекции
@@ -142,7 +131,7 @@
 
 
     //экземпляр вида списка объявлений
-    var carListView = new App.Views.Element({
+    var carListView = new App.Views.CarList({
         collection: adList
     });
 
