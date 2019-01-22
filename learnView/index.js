@@ -11,13 +11,16 @@
     var PersonView = Backbone.View.extend({
         tagName: 'li',
         className: 'list-item',
+        template: '#person',
 
         initialize:function () {
             // console.log('PersonView.model', this.model);
         },
         
         render: function () {
-            console.log(this.$el.html(this.model.get('name') + '(age:' + this.model.get('age') + ', job:' + this.model.get('job') +')'));
+            var template = _.template($(this.template).html());
+                this.$el.html(template(this.model.toJSON()));
+            console.log(this.$el.html(template(this.model.toJSON())));
         }
     });
 
@@ -27,33 +30,5 @@
     });
 
     personView.render();
+    $('body').append(personView.el);
 
-    var Advertisment = Backbone.Model.extend({
-        defaults: {
-            brandName: 'Pontine',
-            product: 'shampoo',
-            coast: 23,
-            currency: 'USD'
-        }
-    });
-
-    var AdvertismentView = Backbone.View.extend({
-        tagName: 'div',
-        className: 'ad-item',
-
-        initialize: function () {
-
-        },
-        render: function () {
-            console.log('AdvertismentView render');
-            this.$el.html(this.model.get('product') + ' ' + this.model.get('brandName'));
-        }
-
-    });
-
-    var advertisment = new Advertisment;
-    var adView = new AdvertismentView({
-       model: advertisment
-    });
-
-    adView.render();
