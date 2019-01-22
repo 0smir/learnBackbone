@@ -27,3 +27,33 @@
     });
 
     personView.render();
+
+    var Advertisment = Backbone.Model.extend({
+        defaults: {
+            brandName: 'Pontine',
+            product: 'shampoo',
+            coast: 23,
+            currency: 'USD'
+        }
+    });
+
+    var AdvertismentView = Backbone.View.extend({
+        tagName: 'div',
+        className: 'ad-item',
+
+        initialize: function () {
+
+        },
+        render: function () {
+            console.log('AdvertismentView render');
+            this.$el.html(this.model.get('product') + ' ' + this.model.get('brandName'));
+        }
+
+    });
+
+    var advertisment = new Advertisment;
+    var adView = new AdvertismentView({
+       model: advertisment
+    });
+
+    adView.render();
